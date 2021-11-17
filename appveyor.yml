@@ -15,11 +15,34 @@ environment:
 
 before_build:
 - pwsh: |
+    Write-Host "BEFORE-BUILD PHASE`n"
     Write-Host "Image = $Env:APPVEYOR_BUILD_WORKER_IMAGE`n"
-    
     Write-Host "PERFORM_CODE_INSPECTION = $Env:PERFORM_CODE_INSPECTION"
     Write-Host "PERFORM_TEST = $Env:PERFORM_TEST"
     Write-Host "PERFORM_PUBLISH_STEP = $Env:PERFORM_PUBLISH_STEP`n"
+
+    if ($isWindows) {
+      if ($Env:PERFORM_TEST -eq "yes") {
+        Write-Host "start-cosmos-db-emulator.ps1 script EXECUTED"
+      }
+      else {
+        Write-Host "start-cosmos-db-emulator.ps1 script NOT executed"
+      }
+    }
+-sh: |
+    if [ $PERFORM_TEST -eq "yes" ]
+    then
+      echo "STARTING Azure Cosmos Emulator on Linux"
+    else
+      echo "NOT starting Azure Cosmos Emulator on Linux"
+    fi
+
+build_script:
+- pwsh: |
+    Write-Host "BUILD PHASE`n"
+    
+    Write-Host "dotnet tool restore EXECUTED"
+    Write-Host "dotnet build EXECUTED"
     
     if ($Env:PERFORM_CODE_INSPECTION -eq "yes") {
       Write-Host "RunInspectCode function EXECUTED"
@@ -29,14 +52,7 @@ before_build:
       Write-Host "RunInspectCode function SKIPPED"
       Write-Host "RunCleanupCode function SKIPPED"
     }
-
-build_script:
-- pwsh: |
-    Write-Host "BUILD PHASE`n"
-    
-    Write-Host "dotnet tool restore EXECUTED"
-    Write-Host "dotnet build EXECUTED"
-    
+ 
     if ($Env:PERFORM_TEST -eq "yes") {
       Write-Host "dotnet test EXECUTED"
     }
@@ -46,7 +62,7 @@ build_script:
 
 after_build:
 - pwsh: |
-    Write-Host "After-Build Phase`n"
+    Write-Host "AFTER-BUILD PHASE`n"
     
     if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
       Write-Host "Documentation PUBLISHED"
