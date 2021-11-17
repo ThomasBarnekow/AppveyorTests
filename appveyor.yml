@@ -13,53 +13,85 @@ environment:
     PERFORM_TEST: yes
     PERFORM_PUBLISH_STEP: yes
 
-before_build:
+# We are just using the install phase to display information
+install:
 - pwsh: |
-    Write-Host "BEFORE-BUILD PHASE`n"
     Write-Host "Image = $Env:APPVEYOR_BUILD_WORKER_IMAGE`n"
     Write-Host "PERFORM_CODE_INSPECTION = $Env:PERFORM_CODE_INSPECTION"
     Write-Host "PERFORM_TEST = $Env:PERFORM_TEST"
     Write-Host "PERFORM_PUBLISH_STEP = $Env:PERFORM_PUBLISH_STEP`n"
 
-    if ($isWindows) {
-      if ($Env:PERFORM_TEST -eq "yes") {
-        Write-Host "start-cosmos-db-emulator.ps1 script EXECUTED`n"
-      }
-    }
-- sh: |
-    if [[ "$PERFORM_TEST" == "yes" ]]; then
-      echo "STARTING Azure Cosmos Emulator on Linux"
-    fi
+before_build:
+- pwsh: |
+    Write-Host "BEFORE-BUILD PHASE`n"
+    Write-Host "dotnet tool restore EXECUTED"
 
 build_script:
 - pwsh: |
-    Write-Host "BUILD PHASE`n"
-    
-    Write-Host "dotnet tool restore EXECUTED"
+    Write-Host "BUILD PHASE`n"   
     Write-Host "dotnet build EXECUTED`n"
     
+after_build:
+- pwsh: |
+    Write-Host "AFTER-BUILD PHASE`n"
+
     if ($Env:PERFORM_CODE_INSPECTION -eq "yes") {
       Write-Host "RunInspectCode function EXECUTED"
       Write-Host "RunCleanupCode function EXECUTED`n"
     }
- 
+
+test: off
+
+before_test:
+- pwsh: |
+    Write-Host "BEFORE-TEST PHASE`n"
+
+    if ($isWindows) {
+      if ($Env:PERFORM_TEST -eq "yes") {
+        Write-Host "Starting Azure Cosmos Emulator on Windows"
+      }
+    }
+- sh: |
+    if [[ "$PERFORM_TEST" == "yes" ]]; then
+      echo "Starting Azure Cosmos Emulator on Linux"
+    fi
+
+test_script:
+- pwsh: |
     if ($Env:PERFORM_TEST -eq "yes") {
       Write-Host "dotnet test EXECUTED"
     }
 
 for:
-- # Performing Publish Step on Visual Studio 2019 image
+- # Deployment
   matrix:
     only:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PERFORM_PUBLISH_STEP: yes
-  after_build:
+
+  artifacts:
+  - path: README.md
+
+  deploy:
+  - provider: FTP
+    protocol: ftp
+    host: speedtest.tele2.net
+    username: anonymous
+    password: anonymous
+    
+  before_deploy:
   - pwsh: |
-      Write-Host "AFTER-BUILD PHASE`n"
+      Write-Host "BEFORE-DEPLOY PHASE`n"
+      
+      if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
+        Write-Host "docfx INSTALLED"
+      }
+
+  deploy_script:
+  - pwsh: |
+      Write-Host "DEPLOY PHASE`n"
     
       if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
         Write-Host "Documentation PUBLISHED"
         Write-Host "NuGet package PUBLISHED (using separate artifacts and deploy keys)`n"
       }
-
-test: off
