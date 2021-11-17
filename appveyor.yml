@@ -23,18 +23,12 @@ before_build:
 
     if ($isWindows) {
       if ($Env:PERFORM_TEST -eq "yes") {
-        Write-Host "start-cosmos-db-emulator.ps1 script EXECUTED"
-      }
-      else {
-        Write-Host "start-cosmos-db-emulator.ps1 script NOT executed"
+        Write-Host "start-cosmos-db-emulator.ps1 script EXECUTED`n"
       }
     }
 - sh: |
-    if [[ "$PERFORM_TEST" == "yes" ]]
-    then
+    if [[ "$PERFORM_TEST" == "yes" ]]; then
       echo "STARTING Azure Cosmos Emulator on Linux"
-    else
-      echo "NOT starting Azure Cosmos Emulator on Linux"
     fi
 
 build_script:
@@ -42,35 +36,30 @@ build_script:
     Write-Host "BUILD PHASE`n"
     
     Write-Host "dotnet tool restore EXECUTED"
-    Write-Host "dotnet build EXECUTED"
+    Write-Host "dotnet build EXECUTED`n"
     
     if ($Env:PERFORM_CODE_INSPECTION -eq "yes") {
       Write-Host "RunInspectCode function EXECUTED"
-      Write-Host "RunCleanupCode function EXECUTED"
-    }
-    else {
-      Write-Host "RunInspectCode function SKIPPED"
-      Write-Host "RunCleanupCode function SKIPPED"
+      Write-Host "RunCleanupCode function EXECUTED`n"
     }
  
     if ($Env:PERFORM_TEST -eq "yes") {
       Write-Host "dotnet test EXECUTED"
     }
-    else {
-      Write-Host "dotnet test SKIPPED"
-    }
 
-after_build:
-- pwsh: |
-    Write-Host "AFTER-BUILD PHASE`n"
+for:
+- # Performing Publish Step on Visual Studio 2019 image
+  matrix:
+    only:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PERFORM_PUBLISH_STEP: yes
+  after_build:
+  - pwsh: |
+      Write-Host "AFTER-BUILD PHASE`n"
     
-    if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
-      Write-Host "Documentation PUBLISHED"
-      Write-Host "NuGet package PUBLISHED"
-    }
-    else {
-      Write-Host "Documentation NOT published"
-      Write-Host "NuGet package NOT published"
-    }
+      if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
+        Write-Host "Documentation PUBLISHED"
+        Write-Host "NuGet package PUBLISHED (using separate artifacts and deploy keys)`n"
+      }
 
 test: off
