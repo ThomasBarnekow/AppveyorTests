@@ -22,19 +22,16 @@ install:
     Write-Host "PERFORM_PUBLISH_STEP = $Env:PERFORM_PUBLISH_STEP`n"
 
 before_build:
-- pwsh: |
-    Write-Host "BEFORE-BUILD PHASE`n"
-    Write-Host "dotnet tool restore EXECUTED`n"
+- pwsh: Write-Host "BEFORE-BUILD PHASE`n"
+- pwsh: Write-Host "dotnet tool restore EXECUTED`n"
 
 build_script:
-- pwsh: |
-    Write-Host "BUILD PHASE`n"   
-    Write-Host "dotnet build EXECUTED`n"
+- pwsh: Write-Host "BUILD PHASE`n"
+- pwsh: Write-Host "dotnet build EXECUTED`n"
     
 after_build:
+- pwsh: Write-Host "AFTER-BUILD PHASE`n"
 - pwsh: |
-    Write-Host "AFTER-BUILD PHASE`n"
-
     if ($Env:PERFORM_CODE_INSPECTION -eq "yes") {
       Write-Host "RunInspectCode function EXECUTED"
       Write-Host "RunCleanupCode function EXECUTED`n"
@@ -56,13 +53,14 @@ before_test:
     fi
 
 test_script:
+- pwsh: Write-Host "TEST PHASE`n"
 - pwsh: |
     if ($Env:PERFORM_TEST -eq "yes") {
       Write-Host "dotnet test EXECUTED`n"
     }
 
 for:
-- # Deployment / publishing of documentation and NuGet packages
+- # Publishing of documentation and NuGet packages
   matrix:
     only:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
@@ -81,17 +79,15 @@ for:
     password: anonymous
     
   before_deploy:
+  - pwsh: Write-Host "BEFORE-DEPLOY PHASE`n"
   - pwsh: |
-      Write-Host "BEFORE-DEPLOY PHASE`n"
-      
       if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
         Write-Host "docfx INSTALLED`n"
       }
 
   deploy_script:
+  - pwsh: Write-Host "DEPLOY PHASE`n"
   - pwsh: |
-      Write-Host "DEPLOY PHASE`n"
-    
       if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
         Write-Host "Documentation PUBLISHED`n"
       }
