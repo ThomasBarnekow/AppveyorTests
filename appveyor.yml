@@ -24,7 +24,7 @@ install:
 before_build:
 - pwsh: |
     Write-Host "BEFORE-BUILD PHASE`n"
-    Write-Host "dotnet tool restore EXECUTED"
+    Write-Host "dotnet tool restore EXECUTED`n"
 
 build_script:
 - pwsh: |
@@ -43,12 +43,11 @@ after_build:
 test: off
 
 before_test:
+- pwsh: Write-Host "BEFORE-TEST PHASE`n"
 - pwsh: |
-    Write-Host "BEFORE-TEST PHASE`n"
-
     if ($isWindows) {
       if ($Env:PERFORM_TEST -eq "yes") {
-        Write-Host "Starting Azure Cosmos Emulator on Windows"
+        Write-Host "Starting Azure Cosmos Emulator on Windows`n"
       }
     }
 - sh: |
@@ -59,19 +58,21 @@ before_test:
 test_script:
 - pwsh: |
     if ($Env:PERFORM_TEST -eq "yes") {
-      Write-Host "dotnet test EXECUTED"
+      Write-Host "dotnet test EXECUTED`n"
     }
 
 for:
-- # Deployment
+- # Deployment / publishing of documentation and NuGet packages
   matrix:
     only:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PERFORM_PUBLISH_STEP: yes
-
+  
+  # Using README.md as a placeholder for the NuGet package
   artifacts:
   - path: README.md
 
+  # Using FTP provider as a placeholder for the NuGet provider
   deploy:
   - provider: FTP
     protocol: ftp
@@ -84,7 +85,7 @@ for:
       Write-Host "BEFORE-DEPLOY PHASE`n"
       
       if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
-        Write-Host "docfx INSTALLED"
+        Write-Host "docfx INSTALLED`n"
       }
 
   deploy_script:
@@ -92,6 +93,5 @@ for:
       Write-Host "DEPLOY PHASE`n"
     
       if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
-        Write-Host "Documentation PUBLISHED"
-        Write-Host "NuGet package PUBLISHED (using separate artifacts and deploy keys)`n"
+        Write-Host "Documentation PUBLISHED`n"
       }
