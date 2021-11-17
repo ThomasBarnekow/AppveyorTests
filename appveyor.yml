@@ -1,17 +1,17 @@
 environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    RUN_INSPECT_CODE: 1
-    RUN_CLEANUP_CODE: 1
-    PERFORM_PUBLISH_STEP: $false
+    RUN_INSPECT_CODE: yes
+    RUN_CLEANUP_CODE: yes
+    PERFORM_PUBLISH_STEP: no
   - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
-    RUN_INSPECT_CODE: 0
-    RUN_CLEANUP_CODE: 0
-    PERFORM_PUBLISH_STEP: $false
+    RUN_INSPECT_CODE: no
+    RUN_CLEANUP_CODE: no
+    PERFORM_PUBLISH_STEP: no
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    RUN_INSPECT_CODE: 0
-    RUN_CLEANUP_CODE: 0
-    PERFORM_PUBLISH_STEP: $true
+    RUN_INSPECT_CODE: no
+    RUN_CLEANUP_CODE: no
+    PERFORM_PUBLISH_STEP: yes
 
 before_build:
 - pwsh: |
@@ -21,14 +21,14 @@ before_build:
     Write-Host "RUN_CLEANUP_CODE = $Env:RUN_CLEANUP_CODE"
     Write-Host "PERFORM_PUBLISH_STEP = $Env:PERFORM_PUBLISH_STEP"
     
-    if ($Env:RUN_INSPECT_CODE -eq 1) {
+    if ($Env:RUN_INSPECT_CODE -eq "yes") {
       Write-Host "RunInspectCode function EXECUTED"
     }
     else {
       Write-Host "RunInspectCode function SKIPPED"
     }
     
-    if ($Env:RUN_CLEANUP_CODE -eq 1) {
+    if ($Env:RUN_CLEANUP_CODE -eq "yes") {
       Write-Host "RunCleanupCode function EXECUTED"
     }
     else {
@@ -44,7 +44,7 @@ after_build:
 - pwsh: |
     Write-Host "Powershell script executed during after-build phase"
     
-    if ($Env:PERFORM_PUBLISH_STEP) {
+    if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
       Write-Host "Publish step EXECUTED"
     }
     else {
