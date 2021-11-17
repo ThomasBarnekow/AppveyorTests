@@ -13,6 +13,9 @@ environment:
     PERFORM_TEST: yes
     PERFORM_PUBLISH_STEP: yes
 
+matrix:
+  fast_finish: true
+
 # We are just using the install phase to display information
 install:
 - pwsh: |
