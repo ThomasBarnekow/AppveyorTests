@@ -30,7 +30,7 @@ before_build:
       }
     }
 - sh: |
-    if [ "$PERFORM_TEST" -eq "yes" ]
+    if [[ "$PERFORM_TEST" == "yes" ]]
     then
       echo "STARTING Azure Cosmos Emulator on Linux"
     else
