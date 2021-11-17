@@ -1,0 +1,49 @@
+environment:
+  matrix:
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    RUN_INSPECT_CODE: true
+    RUN_CLEANUP_CODE: true
+    PERFORM_PUBLISH_STEP: false
+  - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
+    RUN_INSPECT_CODE: false
+    RUN_CLEANUP_CODE: false
+    PERFORM_PUBLISH_STEP: false
+  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    RUN_INSPECT_CODE: false
+    RUN_CLEANUP_CODE: false
+    PERFORM_PUBLISH_STEP: true
+
+before_build:
+- pwsh: |
+    Write-Host "Powershell script executed during before-build phase"
+    Write-Host "Image = $Env:APPVEYOR_BUILD_WORKER_IMAGE"
+    
+    if ($Env:RUN_INSPECT_CODE) {
+      Write-Host "RunInspectCode function EXECUTED"
+    }
+    else {
+      Write-Host "RunInspectCode function SKIPPED"
+    }
+    
+    if ($Env:RUN_CLEANUP_CODE) {
+      Write-Host "RunCleanupCode function EXECUTED"
+    }
+    else {
+      Write-Host "RunCleanupCode function SKIPPED"
+    }
+- sh: echo "Bash script executed during before-build phase"
+
+build_script:
+- pwsh: Write-Host "Powershell script executed during build phase"
+- sh: echo "Bash script executed during build phase"
+
+after_build:
+- pwsh: |
+    Write-Host "Powershell script executed during before-build phase"
+    
+    if ($Env:PERFORM_PUBLISH_STEP) {
+      Write-Host "Publish step EXECUTED"
+    }
+    else {
+      Write-Host "Publish step SKIPPED"
+    }
