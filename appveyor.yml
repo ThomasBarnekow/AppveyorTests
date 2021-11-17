@@ -3,29 +3,32 @@ environment:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     RUN_INSPECT_CODE: 1
     RUN_CLEANUP_CODE: 1
-    PERFORM_PUBLISH_STEP: 0
+    PERFORM_PUBLISH_STEP: $false
   - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
     RUN_INSPECT_CODE: 0
     RUN_CLEANUP_CODE: 0
-    PERFORM_PUBLISH_STEP: 0
+    PERFORM_PUBLISH_STEP: $false
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     RUN_INSPECT_CODE: 0
     RUN_CLEANUP_CODE: 0
-    PERFORM_PUBLISH_STEP: 1
+    PERFORM_PUBLISH_STEP: $true
 
 before_build:
 - pwsh: |
     Write-Host "Powershell script executed during before-build phase"
     Write-Host "Image = $Env:APPVEYOR_BUILD_WORKER_IMAGE"
+    Write-Host "RUN_INSPECT_CODE = $Env:RUN_INSPECT_CODE"
+    Write-Host "RUN_CLEANUP_CODE = $Env:RUN_CLEANUP_CODE"
+    Write-Host "PERFORM_PUBLISH_STEP = $Env:PERFORM_PUBLISH_STEP"
     
-    if ($Env:RUN_INSPECT_CODE) {
+    if ($Env:RUN_INSPECT_CODE -eq 1) {
       Write-Host "RunInspectCode function EXECUTED"
     }
     else {
       Write-Host "RunInspectCode function SKIPPED"
     }
     
-    if ($Env:RUN_CLEANUP_CODE) {
+    if ($Env:RUN_CLEANUP_CODE -eq 1) {
       Write-Host "RunCleanupCode function EXECUTED"
     }
     else {
@@ -39,7 +42,7 @@ build_script:
 
 after_build:
 - pwsh: |
-    Write-Host "Powershell script executed during before-build phase"
+    Write-Host "Powershell script executed during after-build phase"
     
     if ($Env:PERFORM_PUBLISH_STEP) {
       Write-Host "Publish step EXECUTED"
