@@ -1,52 +1,60 @@
 environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    RUN_INSPECT_CODE: yes
-    RUN_CLEANUP_CODE: yes
+    PERFORM_CODE_INSPECTION: yes
+    PERFORM_TEST: no
     PERFORM_PUBLISH_STEP: no
   - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu
-    RUN_INSPECT_CODE: no
-    RUN_CLEANUP_CODE: no
+    PERFORM_CODE_INSPECTION: no
+    PERFORM_TEST: yes
     PERFORM_PUBLISH_STEP: no
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    RUN_INSPECT_CODE: no
-    RUN_CLEANUP_CODE: no
+    PERFORM_CODE_INSPECTION: no
+    PERFORM_TEST: yes
     PERFORM_PUBLISH_STEP: yes
 
 before_build:
 - pwsh: |
-    Write-Host "Powershell script executed during before-build phase"
-    Write-Host "Image = $Env:APPVEYOR_BUILD_WORKER_IMAGE"
-    Write-Host "RUN_INSPECT_CODE = $Env:RUN_INSPECT_CODE"
-    Write-Host "RUN_CLEANUP_CODE = $Env:RUN_CLEANUP_CODE"
-    Write-Host "PERFORM_PUBLISH_STEP = $Env:PERFORM_PUBLISH_STEP"
+    Write-Host "Image = $Env:APPVEYOR_BUILD_WORKER_IMAGE`n"
     
-    if ($Env:RUN_INSPECT_CODE -eq "yes") {
+    Write-Host "PERFORM_CODE_INSPECTION = $Env:PERFORM_CODE_INSPECTION"
+    Write-Host "PERFORM_TEST = $Env:PERFORM_TEST"
+    Write-Host "PERFORM_PUBLISH_STEP = $Env:PERFORM_PUBLISH_STEP`n"
+    
+    if ($Env:PERFORM_CODE_INSPECTION -eq "yes") {
       Write-Host "RunInspectCode function EXECUTED"
-    }
-    else {
-      Write-Host "RunInspectCode function SKIPPED"
-    }
-    
-    if ($Env:RUN_CLEANUP_CODE -eq "yes") {
       Write-Host "RunCleanupCode function EXECUTED"
     }
     else {
+      Write-Host "RunInspectCode function SKIPPED"
       Write-Host "RunCleanupCode function SKIPPED"
     }
-- sh: echo "Bash script executed during before-build phase"
 
 build_script:
-- pwsh: Write-Host "Powershell script executed during build phase"
-- sh: echo "Bash script executed during build phase"
+- pwsh: |
+    Write-Host "BUILD PHASE`n"
+    
+    Write-Host "dotnet tool restore EXECUTED"
+    Write-Host "dotnet build EXECUTED"
+    
+    if ($Env:PERFORM_TEST -eq "yes") {
+      Write-Host "dotnet test EXECUTED"
+    }
+    else {
+      Write-Host "dotnet test SKIPPED"
+    }
 
 after_build:
 - pwsh: |
-    Write-Host "Powershell script executed during after-build phase"
+    Write-Host "After-Build Phase`n"
     
     if ($Env:PERFORM_PUBLISH_STEP -eq "yes") {
-      Write-Host "Publish step EXECUTED"
+      Write-Host "Documentation PUBLISHED"
+      Write-Host "NuGet package PUBLISHED"
     }
     else {
-      Write-Host "Publish step SKIPPED"
+      Write-Host "Documentation NOT published"
+      Write-Host "NuGet package NOT published"
     }
+
+test: off
