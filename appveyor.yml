@@ -29,7 +29,7 @@ before_build:
         Write-Host "start-cosmos-db-emulator.ps1 script NOT executed"
       }
     }
--sh: |
+- sh: |
     if [ $PERFORM_TEST -eq "yes" ]
     then
       echo "STARTING Azure Cosmos Emulator on Linux"
